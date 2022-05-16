@@ -11,4 +11,29 @@ tl;dr:
 # DESCRIPTION
 
 <!-- INCLUDE(merror_example_test.go) -->
+```go
+package merror_test
+
+import (
+  "fmt"
+
+  "github.com/lestrra-go/merror"
+)
+
+func ExampleMerror() {
+  err1 := fmt.Errorf(`first error`)
+  err2 := fmt.Errorf(`second error`)
+  err3 := fmt.Errorf(`third error`)
+
+  err := merror.NewBuilder().
+    Error(err1).
+    Error(err2).
+    Error(err3).
+    Build()
+
+  fmt.Printf("%s", err)
+  // OUTPUT:
+}
+```
+source: [merror_example_test.go](https://github.com/lestrrat-go/merror/blob/main/merror_example_test.go)
 <!-- END INCLUDE -->
