@@ -1,6 +1,8 @@
 name: Auto-Doc
 on:
-  - pull_request
+  pull_request:
+    types:
+      - closed
 
 jobs:
   autodoc:
