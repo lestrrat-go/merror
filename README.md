@@ -11,3 +11,4 @@ tl;dr:
 # DESCRIPTION
 
 <!-- INCLUDE(merror_example_test.go) -->
+<!-- END INCLUDE -->
