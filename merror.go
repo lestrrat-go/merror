@@ -38,7 +38,7 @@ func NewBuilder() *Builder {
 	return &Builder{}
 }
 
-func (b *Builder) Build() error {
+func (b *Builder) Build() *Error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	errors := b.errors

@@ -17,6 +17,12 @@ func ExampleMerror() {
 		Error(err3).
 		Build()
 
-	fmt.Printf("%s", err)
+	for _, suberr := range err.Errors() {
+		fmt.Printf("%s\n", suberr.Error())
+	}
+
 	// OUTPUT:
+	// first error
+	// second error
+	// third error
 }
