@@ -68,6 +68,7 @@ if (!$ENV{AUTODOC_DRYRUN}) {
         print "  - $_\n" for @has_diff;
         $commit_message_file->close();
         system("git", "remote", "set-url", "origin", "https://github-actions:$ENV{GITHUB_TOKEN}\@github.com/$ENV{GITHUB_REPOSITORY}") == 0 or die $!;
+        system("git", "fetch", "origin") == 0 or die $!;
         system("git", "config", "--global", "user.name", "$ENV{GITHUB_ACTOR}") == 0 or die $!;
         system("git", "config", "--global", "user.email", "$ENV{GITHUB_ACTOR}\@users.noreply.github.com") == 0 or die $!;
         system("git", "switch", "-c", "autodoc-pr-$ENV{GITHUB_HEAD_REF}") == 0 or die $!;
