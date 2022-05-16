@@ -31,8 +31,14 @@ func ExampleMerror() {
     Error(err3).
     Build()
 
-  fmt.Printf("%s", err)
+  for _, suberr := range err.Errors() {
+    fmt.Printf("%s\n", suberr.Error())
+  }
+
   // OUTPUT:
+  // first error
+  // second error
+  // third error
 }
 ```
 source: [merror_example_test.go](https://github.com/lestrrat-go/merror/blob/main/merror_example_test.go)
