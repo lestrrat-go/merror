@@ -110,5 +110,43 @@ source: [merror_goroutine_example_test.go](https://github.com/lestrrat-go/merror
 Also, this package works great when you actually want to detect if there were any errors at all. When the `Builder` is not passed any errors before `Build()` is called, then the `Build()` method returns nil, so you can actuall check if there were any errors in an idiomatic way.
 
 <!-- INCLUDE(merror_noerror_example_test.go) -->
+```go
+package merror_test
+
+import (
+  "context"
+  "fmt"
+  "sync"
+
+  "github.com/lestrra-go/merror"
+)
+
+func ExampleMerror_NoErrors() {
+  b := merror.NewBuilder()
+  ctx := b.NewContext(context.Background())
+
+  var wg sync.WaitGroup
+  wg.Add(10)
+
+  for i := 0; i < 10; i++ {
+    go func(ctx context.Context) (err error) {
+      defer merror.AddToContext(ctx, &err)
+      defer wg.Done()
+
+      // No errors!
+      return
+    }(ctx)
+  }
+
+  wg.Wait()
+
+  if errs := b.Build(); errs != nil {
+    fmt.Printf("%s\n", errs)
+  }
+
+  // OUTPUT:
+}
+```
+source: [merror_noerror_example_test.go](https://github.com/lestrrat-go/merror/blob/main/merror_noerror_example_test.go)
 <!-- END INCLUDE -->
 
