@@ -7,6 +7,7 @@ tl;dr:
 
 * Sometimes you want multiple errors to be bundled into a single error.
 * Whereas other libraries directly act on the error object, this package uses a builder to create errors. This significanly reduces the complexity of the error object itself.
+* This unique design allows for graceful handling of collecting errors from multiple goroutines, and also to properly return a `nil` error when there are no errors.
 
 # DESCRIPTION
 
@@ -104,5 +105,10 @@ func ExampleMerror_MultipleGoroutines() {
 }
 ```
 source: [merror_goroutine_example_test.go](https://github.com/lestrrat-go/merror/blob/main/merror_goroutine_example_test.go)
+<!-- END INCLUDE -->
+
+Also, this package works great when you actually want to detect if there were any errors at all. When the `Builder` is not passed any errors before `Build()` is called, then the `Build()` method returns nil, so you can actuall check if there were any errors in an idiomatic way.
+
+<!-- INCLUDE(merror_noerror_example_test.go) -->
 <!-- END INCLUDE -->
 
