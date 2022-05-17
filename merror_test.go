@@ -1,9 +1,11 @@
 package merror_test
 
 import (
+	"context"
 	"fmt"
 	"regexp"
 	"strings"
+	"sync"
 	"testing"
 
 	"github.com/lestrra-go/merror"
@@ -58,4 +60,33 @@ func TestFormatter(t *testing.T) {
 
 	msg := err.Error()
 	require.Equal(t, msg, `{"errors":["1","2","3"]}`)
+}
+
+func TestGoroutine(t *testing.T) {
+	b := merror.NewBuilder()
+	m := make(map[string]struct{})
+	var wg sync.WaitGroup
+	wg.Add(10)
+	const max = 10
+	for i := 0; i < max; i++ {
+		i := i
+		m[fmt.Sprintf(`%d`, i)] = struct{}{}
+		go func(ctx context.Context) (err error) {
+			defer merror.AddToContext(ctx, &err)
+			defer wg.Done()
+
+			return fmt.Errorf(`%d`, i)
+		}(b.NewContext(context.Background()))
+	}
+
+	wg.Wait()
+
+	merr := b.Build()
+	for _, err := range merr.Errors() {
+		t.Logf("m = %#v", m)
+		t.Logf("err = %s", err)
+		delete(m, err.Error())
+	}
+
+	require.Len(t, m, 0, `expected m to contain zero entries`)
 }
