@@ -13,22 +13,28 @@ import (
 )
 
 func TestErrors(t *testing.T) {
-	b := merror.NewBuilder()
-	errors := []error{
-		fmt.Errorf(`1`),
-		fmt.Errorf(`2`),
-		fmt.Errorf(`3`),
-	}
-	for _, err := range errors {
-		b.Error(err)
-	}
+	t.Run("no errors", func(t *testing.T) {
+		b := merror.NewBuilder()
+		require.Nil(t, b.Build(), `b.Build() should return nil`)
+	})
+	t.Run("errors", func(t *testing.T) {
+		b := merror.NewBuilder()
+		errors := []error{
+			fmt.Errorf(`1`),
+			fmt.Errorf(`2`),
+			fmt.Errorf(`3`),
+		}
+		for _, err := range errors {
+			b.Error(err)
+		}
 
-	err := b.Build()
-	require.Error(t, err, `b.Build() should create a prorper error`)
+		err := b.Build()
+		require.Error(t, err, `b.Build() should create a prorper error`)
 
-	msg := err.Error()
-	require.Regexp(t, regexp.MustCompile(`^errors found:`), msg, `message matches`)
-	require.Contains(t, msg, "\n  ✔ 1\n  ✔ 2\n  ✔ 3")
+		msg := err.Error()
+		require.Regexp(t, regexp.MustCompile(`^errors found:`), msg, `message matches`)
+		require.Contains(t, msg, "\n  ✔ 1\n  ✔ 2\n  ✔ 3")
+	})
 }
 
 func TestFormatter(t *testing.T) {
