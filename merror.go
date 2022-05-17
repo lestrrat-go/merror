@@ -41,6 +41,9 @@ func NewBuilder() *Builder {
 	return &Builder{}
 }
 
+// Build returns the error that it has accumulated. If no errors have been
+// specified using `Error()` method, then this method return `nil`, indicating
+// that there weren't any errors.
 func (b *Builder) Build() *Error {
 	b.mu.Lock()
 	defer b.mu.Unlock()
@@ -48,6 +51,12 @@ func (b *Builder) Build() *Error {
 	format := b.format
 	b.errors = nil
 	b.format = nil
+
+	// If there are no errors, there is no error!
+	if len(errors) == 0 {
+		return nil
+	}
+
 	return &Error{
 		errors: errors,
 		format: format,
