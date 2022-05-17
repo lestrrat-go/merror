@@ -1,6 +1,9 @@
+// Package merror provides an error type that is suitable for representing
+// multiple errors.
 package merror
 
 import (
+	"context"
 	"strings"
 	"sync"
 )
@@ -65,6 +68,50 @@ func (b *Builder) Formatter(f Formatter) *Builder {
 	return b
 }
 
+type identMerrorContext struct{}
+
+// NewContext creates a new context.Context that has the `Builder`
+// b associated with it. You can use `merror.AddToContext` to
+// add more errors through the context
+func (b *Builder) NewContext(ctx context.Context) context.Context {
+	return context.WithValue(ctx, identMerrorContext{}, b)
+}
+
+// If the `context.Context` object does not already contain a
+// `merror.Builder` in it, this function is a no-op.
+//
+// The second argument must be a pointer, as this function is
+// intended to be used in a defer statement.
+//
+//   func Foo(ctx context.Context) (err error) {
+//     defer merror.AddToContext(ctx, err) // bound to the value of err NOW (i.e. nil)
+//     return fmt.Errorf(`foo`)
+//   }
+//
+//   func Foo(ctx context.Context) (err error) {
+//     defer merror.AddToContext(ctx, err) // bound to the pointer, so can detect assignments to it
+//     return fmt.Errorf(`foo`)
+//   }
+func AddToContext(ctx context.Context, ptr *error) {
+	if ptr == nil {
+		return
+	}
+	err := *ptr
+	if err == nil {
+		return
+	}
+
+	v := ctx.Value(identMerrorContext{})
+	if v == nil {
+		return
+	}
+	b, ok := v.(*Builder)
+	if !ok {
+		return
+	}
+	b.Error(err)
+}
+
 // FormatFunc is a Formatter that is represented as a function
 type FormatFunc func(*Error) string
 
@@ -95,6 +142,7 @@ const (
 	defaultMessage = "errors found:"
 )
 
+// Creates a new `FormatBuilder` to build `Format` objects
 func NewFormatBuilder() *FormatBuilder {
 	return &FormatBuilder{
 		marker:  defaultMarker,
