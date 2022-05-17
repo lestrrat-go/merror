@@ -1,0 +1,39 @@
+# Smoke tests only run on non-master branches. Smoke tests cut
+# some corners by running selected tests in parallel (to shave off
+# some execution time)
+# Once a pull request is merged to master, workflows/ci.yml is run
+name: Smoke Tests
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go: [ '1.18', '1.17' ]
+    name: "Smoke [ Go ${{ matrix.go }} ]"
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      - name: Check documentation generator
+        run: |
+          find . -name '*.md' | xargs env AUTODOC_DRYRUN=1 perl tools/autodoc.pl
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      - name: Install Go stable version
+        uses: actions/setup-go@v3
+        with:
+          go-version: ${{ matrix.go }}
+          check-latest: true
+      - name: Run smoke tests
+        run: go test ./...
