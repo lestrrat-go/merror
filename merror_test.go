@@ -78,8 +78,8 @@ func TestGoroutine(t *testing.T) {
 		i := i
 		m[fmt.Sprintf(`%d`, i)] = struct{}{}
 		go func(ctx context.Context) (err error) {
-			defer merror.AddToContext(ctx, &err)
 			defer wg.Done()
+			defer merror.AddToContext(ctx, &err)
 
 			return fmt.Errorf(`%d`, i)
 		}(b.NewContext(context.Background()))
