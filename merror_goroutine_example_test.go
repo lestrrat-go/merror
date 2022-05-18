@@ -19,8 +19,8 @@ func ExampleMerror_MultipleGoroutines() {
 	for i := 0; i < 10; i++ {
 		i := i
 		go func(ctx context.Context) (err error) {
-			defer merror.AddToContext(ctx, &err)
 			defer wg.Done()
+			defer merror.AddToContext(ctx, &err)
 
 			return fmt.Errorf(`%d`, i)
 		}(ctx)
