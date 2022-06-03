@@ -98,7 +98,7 @@ func (b *Builder) NewContext(ctx context.Context) context.Context {
 //   }
 //
 //   func Foo(ctx context.Context) (err error) {
-//     defer merror.AddToContext(ctx, err) // bound to the pointer, so can detect assignments to it
+//     defer merror.AddToContext(ctx, &err) // bound to the pointer, so can detect assignments to it
 //     return fmt.Errorf(`foo`)
 //   }
 func AddToContext(ctx context.Context, ptr *error) {
